@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn About Your Body in Space · AstroPulse / CrewCheck</title>
+<meta name="description" content="Plain-language guide to how spaceflight changes the human body. Based on NASA HRP risk pages.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-tier="green">
+
+<header class="hdr">
+  <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-4">
+    <a href="index.html" class="btn no-underline" style="color:inherit">← Back to dashboard</a>
+    <div class="font-semibold">Learn About Health <span class="muted font-normal">/ your body in space</span></div>
+    <a href="suggestions.html" class="btn no-underline ml-auto" style="color:var(--accent)">Suggestions →</a>
+    <span id="srcTag" class="tag assume hidden"></span>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-5 pb-20 pt-8">
+  <section>
+    <div class="mono" style="color:var(--accent);font-size:11px;letter-spacing:.2em">SPACE PHYSIOLOGY · BODY CHANGES · EDUCATION</div>
+    <h1 class="hero-title mt-3 font-semibold" style="font-size:clamp(26px,4vw,40px);line-height:1.12;max-width:820px">Why does your body change in space?</h1>
+    <p class="muted mt-4" style="max-width:760px;font-size:15px;line-height:1.65">Microgravity and the space environment change how the heart, blood, muscles and sleep work. These are the five changes CrewCheck keeps an eye on, explained in plain language. This page is education, not a diagnosis.</p>
+    <div class="flex flex-wrap gap-2 mt-5">
+      <span class="tag nasa">NASA HRP ROADMAP</span><span class="tag nasa">LSDA</span><span class="tag assume">APPROXIMATE · EDUCATIONAL</span>
+    </div>
+  </section>
+
+  <!-- Quick jump -->
+  <section class="mt-8">
+    <div class="lbl">Jump to a topic</div>
+    <div id="jump" class="jump"></div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="mt-10">
+    <h2 class="sec mb-4"><span class="sec-num">A</span>What to expect, in order</h2>
+    <div class="tl">
+      <div><div class="step">01 · EARLY FLIGHT</div><p class="mt-2" style="font-size:13.5px;line-height:1.6">Fluids shift toward the head and chest. Face feels full and legs get thinner. Sleep and body clock start to be disturbed.</p></div>
+      <div><div class="step">02 · LONG FLIGHT</div><p class="mt-2" style="font-size:13.5px;line-height:1.6">Heart, muscles and aerobic fitness slowly deteriorate, even with daily exercise. Chronic short sleep builds up.</p></div>
+      <div><div class="step">03 · RETURN TO GRAVITY</div><p class="mt-2" style="font-size:13.5px;line-height:1.6">Blood pools in the legs when standing. Dizziness and fainting risk goes up. Reconditioning takes weeks to months.</p></div>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <section class="mt-10">
+    <h2 class="sec mb-4"><span class="sec-num">B</span>The five body changes</h2>
+    <div id="cards" class="space-y-5"></div>
+  </section>
+
+  <p class="dim mt-10" style="font-size:11.5px;line-height:1.7;max-width:860px">Physiological mechanisms derived from NASA Human Research Program (HRP) Integrated Research Plan &amp; Evidence Reports. Content is a simplified overview written by the team. Not a medical device and not a diagnosis. Any red-flag symptom means: stop and contact medical support.</p>
+</main>
+
+<script src="learn.js"></script>
+</body>
+</html>
