@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AstroPulse / CrewCheck · Astronaut Health Decision Support</title>
+<meta name="description" content="Offline-first cardiovascular decision-support tool for astronauts. NASA Space Apps 2026 · Challenge #05.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-tier="green">
+<canvas id="stars"></canvas>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="scan"></div>
+  <div class="text-center px-6" style="max-width:460px">
+    <svg width="54" height="54" viewBox="0 0 48 48" class="mx-auto mb-5 logo-pulse"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(108,182,232,.35)" stroke-width="1.5"/><path d="M5 25h10l4-9 6 18 5-12 3 3h10" fill="none" stroke="#6cb6e8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="mono" style="letter-spacing:.3em;font-size:13px">ASTROPULSE · CREWCHECK</div>
+    <div class="muted text-xs mt-2">Astronaut Health &amp; Environmental Risk Decision Support</div>
+    <div id="bootLines" class="mt-7 text-left space-y-1.5"></div>
+    <div class="bar mt-6"><i id="bootBar" style="width:0"></i></div>
+    <button id="enterBtn" class="btn primary mt-7 hidden">Enter mission control</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-4">
+    <a href="#top" class="flex items-center gap-3 no-underline" style="color:inherit">
+      <svg width="30" height="30" viewBox="0 0 48 48" class="logo-pulse"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(108,182,232,.35)" stroke-width="1.5"/><path d="M5 25h10l4-9 6 18 5-12 3 3h10" fill="none" stroke="#6cb6e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><div class="font-semibold" style="letter-spacing:.02em">AstroPulse <span class="muted font-normal">/ CrewCheck</span></div>
+      <div class="dim mono" style="font-size:10px;letter-spacing:.12em">NASA SPACE APPS 2026 · CHALLENGE #05</div></div>
+    </a>
+    <nav class="nav hidden lg:flex ml-6 gap-1">
+      <a href="#input">Telemetry</a><a href="#quality">Data quality</a><a href="#trends">Trends</a><a href="#decision">Decision</a><a href="#evidence">Evidence</a><a href="#validation">Validation</a><a href="#why">Why</a>
+      <a href="learn.html" style="color:var(--accent)">Learn</a>
+      <a href="suggestions.html" style="color:var(--accent)">Suggestions →</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 mono muted" style="font-size:12px"><span class="dot"></span><span id="clock">--:--:-- UTC</span></div>
+      <button id="soundBtn" class="icon-btn" aria-pressed="true" title="Toggle sound"><span id="soundIco">♪</span><span id="soundTxt">Sound on</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- SCENARIO SIMULATOR -->
+<div class="scenario-bar" id="top">
+  <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-3 overflow-x-auto">
+    <span class="mono dim shrink-0" style="font-size:11px;letter-spacing:.14em">TEST SCENARIO SIMULATOR</span>
+    <div id="scenarioBtns" class="flex gap-2"></div>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-5 pb-20">
+
+  <!-- HERO -->
+  <section class="pt-10 pb-6 reveal">
+    <div class="mono accent" style="color:var(--accent);font-size:11px;letter-spacing:.2em">CARDIOVASCULAR DECISION SUPPORT · OFFLINE-FIRST</div>
+    <h1 class="hero-title mt-3 font-semibold" style="font-size:clamp(26px,4vw,42px);line-height:1.1;letter-spacing:-.01em;max-width:860px">Know what changed, how long, and what to do next, or when the data can't be trusted.</h1>
+    <p class="muted mt-4" style="max-width:760px;font-size:15px;line-height:1.65">CrewCheck compares today's telemetry with the astronaut's own 14-day baseline, explains the drift, and refuses to draw a conclusion when data are stale or incomplete. It is decision support only. It never diagnoses.</p>
+    <svg class="ecg" viewBox="0 0 600 56" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 30h120l10-14 12 34 12-44 12 36 8-12h60l10-14 12 34 12-44 12 36 8-12h60l10-14 12 34 12-44 12 36 8-12h120"/>
+    </svg>
+    <div class="flex flex-wrap gap-2 mt-5">
+      <span class="tag nasa">NASA OSD-575 BENCHMARKS</span><span class="tag nasa">HRP CARDIOVASCULAR ROADMAP</span><span class="tag analog">BP ANALOG DATA</span><span class="tag assume">TEAM-ASSUMED THRESHOLDS</span>
+    </div>
+  </section>
+
+  <!-- 1. MISSION + INPUT + LIVE -->
+  <section id="input" class="grid lg:grid-cols-12 gap-5 pt-4">
+    <div class="lg:col-span-7 space-y-5">
+      <div class="glass p-5 reveal">
+        <div class="flex items-center justify-between mb-4"><h2 class="sec"><span class="sec-num">01</span>Mission context</h2><span class="tag nasa">NASA HRP</span></div>
+        <div id="missionPills" class="flex flex-wrap gap-2"></div>
+        <div id="missionCard" class="mt-4 grid sm:grid-cols-2 gap-3"></div>
+      </div>
+
+      <div class="glass p-5 reveal">
+        <div class="flex items-center justify-between mb-5"><h2 class="sec"><span class="sec-num">02</span>Telemetry input</h2><button id="resetBtn" class="btn">Reset</button></div>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-5">
+          <div class="pair"><label class="lbl" for="hr">Resting heart rate (bpm)</label><input id="hr" type="number" class="inp" step="1"><input id="hr_r" type="range" min="30" max="140" step="1"></div>
+          <div class="pair"><label class="lbl" for="sleep">Sleep duration (h)</label><input id="sleep" type="number" class="inp" step="0.1"><input id="sleep_r" type="range" min="0" max="12" step="0.1"></div>
+          <div class="pair"><label class="lbl" for="sbp">Systolic BP (mmHg)</label><input id="sbp" type="number" class="inp" step="1"><input id="sbp_r" type="range" min="70" max="200" step="1"></div>
+          <div class="pair"><label class="lbl" for="dbp">Diastolic BP (mmHg)</label><input id="dbp" type="number" class="inp" step="1"><input id="dbp_r" type="range" min="40" max="130" step="1"></div>
+          <div class="pair"><label class="lbl" for="exMin">Exercise load (min)</label><input id="exMin" type="number" class="inp" step="1"><input id="exMin_r" type="range" min="0" max="150" step="1"></div>
+          <div class="pair"><label class="lbl" for="rpe">Perceived exertion RPE (1–10)</label><input id="rpe" type="number" class="inp" step="0.5"><input id="rpe_r" type="range" min="1" max="10" step="0.5"></div>
+        </div>
+
+        <div class="mt-6">
+          <label class="lbl">Orthostatic symptoms (on standing)</label>
+          <div class="grid sm:grid-cols-3 gap-2">
+            <label class="sym" style="--c:var(--yellow)"><input type="checkbox" id="sym_dizzy"><span class="box"></span>Mild dizziness</label>
+            <label class="sym" style="--c:var(--orange)"><input type="checkbox" id="sym_palp"><span class="box"></span>Palpitations</label>
+            <label class="sym" style="--c:var(--orange)"><input type="checkbox" id="sym_vision"><span class="box"></span>Vision greying</label>
+          </div>
+          <label class="lbl mt-4">Red-flag symptoms</label>
+          <div class="grid sm:grid-cols-3 gap-2">
+            <label class="sym" style="--c:var(--red)"><input type="checkbox" id="sym_chest"><span class="box"></span>Chest pain</label>
+            <label class="sym" style="--c:var(--red)"><input type="checkbox" id="sym_faint"><span class="box"></span>Fainting</label>
+            <label class="sym" style="--c:var(--red)"><input type="checkbox" id="sym_sob"><span class="box"></span>Severe breathlessness</label>
+          </div>
+        </div>
+
+        <div class="mt-6 grid sm:grid-cols-2 gap-x-6 gap-y-5 items-end">
+          <div><label class="lbl" for="ts">Data timestamp (last sync)</label><input id="ts" type="datetime-local" class="inp"></div>
+          <div class="flex items-center gap-3"><button id="syncNow" class="btn primary">Sync now</button><span id="ageReadout" class="mono muted" style="font-size:12px"></span></div>
+          <div class="pair sm:col-span-2"><label class="lbl" for="drift">Demo history: prior consecutive drift days <span id="driftVal" class="mono" style="color:var(--accent)">0</span></label><input id="drift" type="range" min="0" max="7" step="1" value="0"></div>
+        </div>
+
+        <details class="mt-6">
+          <summary>Personal baseline (14-day rolling mean ± SD) · <span class="tag assume">DEMO VALUES</span></summary>
+          <div class="mt-3 overflow-x-auto"><table class="t"><thead><tr><th>Indicator</th><th>Mean</th><th>SD</th></tr></thead><tbody id="baseBody"></tbody></table></div>
+        </details>
+      </div>
+    </div>
+
+    <!-- LIVE ASSESSMENT -->
+    <div class="lg:col-span-5">
+      <div class="glass p-6 reveal lg:sticky" style="top:84px">
+        <div class="flex items-center justify-between"><h2 class="sec"><span class="sec-num">03</span>Live assessment</h2><span id="liveTag" class="mono dim" style="font-size:11px"></span></div>
+        <div class="relative mx-auto mt-4" style="max-width:300px">
+          <svg viewBox="0 0 200 118" class="w-full">
+            <path class="gauge-bg" d="M20 100 A80 80 0 0 1 180 100"/>
+            <path id="gaugeFg" class="gauge-fg" d="M20 100 A80 80 0 0 1 180 100" stroke-dasharray="251.33" stroke-dashoffset="251.33"/>
+            <g id="gaugeTicks" stroke="rgba(230,234,242,.45)" stroke-width="1.2"></g>
+          </svg>
+          <div class="absolute inset-x-0 text-center" style="bottom:6px"><div id="gaugeVal" class="kpi font-semibold" style="font-size:34px;color:var(--t)">0.00</div><div class="mono dim" style="font-size:10px;letter-spacing:.14em">DRIFT INDEX · SD UNITS</div></div>
+        </div>
+        <div class="text-center mt-5"><span id="tierBadge" class="tbadge"><span class="dot"></span><span id="tierName">STABLE</span></span></div>
+        <p id="tierHeadline" aria-live="polite" class="text-center mt-4 font-medium" style="font-size:15px"></p>
+        <p id="tierAction" class="text-center muted mt-2" style="font-size:13.5px;line-height:1.6"></p>
+        <a href="suggestions.html" class="btn primary w-full mt-5 block text-center no-underline" style="color:inherit">See suggestions for this status →</a>
+        <div class="grid grid-cols-3 gap-2 mt-6">
+          <div class="qbox text-center"><div id="kDrift" class="kpi" style="font-size:20px">0</div><div class="dim" style="font-size:10.5px">drifting</div></div>
+          <div class="qbox text-center"><div id="kDays" class="kpi" style="font-size:20px">0</div><div class="dim" style="font-size:10.5px">days at watch+</div></div>
+          <div class="qbox text-center"><div id="kAge" class="kpi" style="font-size:20px">–</div><div class="dim" style="font-size:10.5px">data age (h)</div></div>
+        </div>
+        <button id="copyRpt" class="btn w-full mt-5">Copy status report</button>
+        <p class="dim mt-5" style="font-size:11.5px;line-height:1.6">Decision support, not diagnosis. Thresholds are team assumptions until replaced by mission-protocol values.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. DATA QUALITY -->
+  <section id="quality" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">04</span>Data quality &amp; stale-check</h2></div>
+    <div id="qBanner" class="banner hidden mb-4"></div>
+    <div id="watchBanner" class="banner watch hidden mb-4"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 reveal">
+      <div class="qbox" id="qComp"></div><div class="qbox" id="qFresh"></div><div class="qbox" id="qPlaus"></div><div class="qbox" id="qScoring"></div>
+    </div>
+  </section>
+
+  <!-- 3. TRENDS -->
+  <section id="trends" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">05</span>Real-time telemetry &amp; baseline comparison</h2></div>
+    <div class="grid lg:grid-cols-12 gap-5">
+      <div class="glass p-5 lg:col-span-8 reveal">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div id="trendTabs" class="flex gap-2"></div><span class="tag assume">DEMO HISTORY · 10 DAYS + TODAY</span>
+        </div>
+        <div style="height:300px"><canvas id="trendChart"></canvas></div>
+        <p class="dim mt-3" style="font-size:11.5px">Shaded band = personal baseline ± 2 SD. Source: user inputs vs. personal baseline (team assumption). History is generated for demonstration.</p>
+      </div>
+      <div class="glass p-5 lg:col-span-4 reveal">
+        <div class="mb-3 font-medium" style="font-size:14px">What drives the score</div>
+        <div style="height:300px"><canvas id="contribChart"></canvas></div>
+        <p class="dim mt-3" style="font-size:11.5px">Weighted contribution = weight × adverse deviation (SD).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DECISION -->
+  <section id="decision" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">06</span>Decision support &amp; protocol actions</h2></div>
+    <div id="tierCards" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 reveal"></div>
+    <div class="grid lg:grid-cols-12 gap-5 mt-5">
+      <div class="glass p-5 lg:col-span-7 reveal">
+        <div class="font-medium mb-1">Why this alert</div>
+        <p id="whyTrigger" class="muted mb-3" style="font-size:13px"></p>
+        <div class="overflow-x-auto"><table class="t"><thead><tr><th>Indicator</th><th>Today vs personal baseline</th><th>z</th></tr></thead><tbody id="findings"></tbody></table></div>
+        <div id="durBox" class="mt-4 mono muted" style="font-size:12.5px"></div>
+      </div>
+      <div class="glass p-5 lg:col-span-5 reveal space-y-4">
+        <div><div class="lbl">Possible contributors (not a diagnosis)</div><div id="contrib" class="muted" style="font-size:13px;line-height:1.6"></div></div>
+        <div><div class="lbl">What to do next</div>
+          <div class="space-y-3" style="font-size:13px;line-height:1.55">
+            <div><span class="mono" style="color:var(--t)">NOW ·</span> <span id="nxNow"></span></div>
+            <div><span class="mono" style="color:var(--t)">REPEAT ·</span> <span id="nxRepeat"></span></div>
+            <div><span class="mono" style="color:var(--t)">CONTACT ·</span> <span id="nxContact"></span></div>
+          </div></div>
+        <div id="learnWrap" class="hidden"><div class="lbl">Learn why this is happening</div><div id="learnLinks" class="flex flex-col gap-2"></div></div>
+        <div class="pt-3" style="border-top:1px solid var(--line)"><div class="lbl">Metadata source</div>
+          <p class="dim" style="font-size:11.5px;line-height:1.6">NASA OSDR OSD-575 (DOI 10.26030/mc5d-p710) · Quest CMP · NASA HRP Cardiovascular Roadmap (HSRB 5/2024) · BP analog dataset from published studies · thresholds are team assumptions.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EVIDENCE EXPLORER -->
+  <section id="evidence" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">07</span>NASA data source &amp; evidence explorer</h2></div>
+    <div class="glass reveal">
+      <div class="px-3"><div id="evTabs" class="tabs"></div></div>
+      <div id="evBody" class="p-5"></div>
+    </div>
+  </section>
+
+  <!-- 6. VALIDATION -->
+  <section id="validation" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">08</span>Engineering test suite</h2></div>
+    <div class="glass p-5 reveal">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <p class="muted" style="font-size:13.5px;max-width:640px;line-height:1.6">A fixed set of designed scenarios with expected outcomes, scored for CrewCheck and for a basic fixed-threshold dashboard (no personal baseline, no data-quality check). These are engineering test cases, not evidence of clinical effectiveness.</p>
+        <button id="runSuite" class="btn primary">Run test suite</button>
+      </div>
+      <div id="suiteSummary" class="grid sm:grid-cols-4 gap-3 mt-5 hidden">
+        <div class="qbox"><div id="sCrew" class="kpi pass" style="font-size:26px">–</div><div class="dim" style="font-size:11.5px">CrewCheck correct</div></div>
+        <div class="qbox"><div id="sNaive" class="kpi" style="font-size:26px;color:var(--orange)">–</div><div class="dim" style="font-size:11.5px">Basic dashboard correct</div></div>
+        <div class="qbox"><div id="sRef" class="kpi" style="font-size:26px;color:var(--accent)">–</div><div class="dim" style="font-size:11.5px">Unreliable inputs refused</div></div>
+        <div class="qbox"><div id="sFa" class="kpi" style="font-size:26px;color:var(--yellow)">–</div><div class="dim" style="font-size:11.5px">Inappropriate alerts avoided</div></div>
+      </div>
+      <div id="suiteTableWrap" class="mt-5 overflow-x-auto hidden"><table class="t"><thead><tr><th>#</th><th>Scenario</th><th>Group</th><th>Expected</th><th>CrewCheck</th><th>Basic dashboard</th></tr></thead><tbody id="suiteBody"></tbody></table></div>
+      <p class="dim mt-3" style="font-size:11.5px">Click a row to load that scenario into the simulator.</p>
+    </div>
+  </section>
+
+  <!-- 7. WHY -->
+  <section id="why" class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">09</span>Why is this happening?</h2></div>
+    <div class="glass p-5 reveal"><div id="chain" class="chain"></div>
+      <p class="dim mt-4" style="font-size:11.5px">Framework adapted from the NASA HRP Roadmap risk pages (Cardiovascular, Muscle &amp; Aerobic Fitness, Sleep, Medical Conditions). Tags: [CV] [MA] [SLP] [MED].</p></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+      <div class="glass p-4 reveal"><div class="mono" style="color:var(--accent);font-size:11px">Q1</div><div class="mt-1 font-medium" style="font-size:14px">What is happening to my health?</div><p class="muted mt-2" style="font-size:12.5px">Indicator table with today vs. baseline.</p></div>
+      <div class="glass p-4 reveal"><div class="mono" style="color:var(--accent);font-size:11px">Q2</div><div class="mt-1 font-medium" style="font-size:14px">Is anything unusual for me?</div><p class="muted mt-2" style="font-size:12.5px">Personal-baseline z-scores and duration.</p></div>
+      <div class="glass p-4 reveal"><div class="mono" style="color:var(--accent);font-size:11px">Q3</div><div class="mt-1 font-medium" style="font-size:14px">What should I do now?</div><p class="muted mt-2" style="font-size:12.5px">Protocol card with concrete actions.</p></div>
+      <div class="glass p-4 reveal"><div class="mono" style="color:var(--accent);font-size:11px">Q4</div><div class="mt-1 font-medium" style="font-size:14px">Monitor, repeat, or call?</div><p class="muted mt-2" style="font-size:12.5px">Repeat and contact rules, or an explicit refusal.</p></div>
+    </div>
+  </section>
+
+  <!-- JUDGING -->
+  <section class="pt-12">
+    <div class="reveal"><h2 class="sec mb-4"><span class="sec-num">10</span>How CrewCheck maps to the judging criteria</h2></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3" id="judging"></div>
+  </section>
+</main>
+
+<footer style="border-top:1px solid var(--line);background:rgba(7,10,18,.8)">
+  <div class="max-w-7xl mx-auto px-5 py-8">
+    <p class="muted" style="font-size:12.5px;line-height:1.7;max-width:900px">Comparative baselines and metabolic benchmarks powered by NASA Open Science Data Repository (OSDR) Study OSD-575 (SpaceX Inspiration4), NASA Life Sciences Data Archive (LSDA), and HRP Cardiovascular Roadmap frameworks. BP analog data from published studies; Framingham is non-NASA.</p>
+    <p class="dim mt-3" style="font-size:11.5px;line-height:1.7;max-width:900px">Use of AI: this application was drafted with Claude (Anthropic). Decision support only; not a medical device and not a diagnosis. Escalation values must be replaced by Flight-Surgeon-approved mission protocols.</p>
+    <div class="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5" style="border-top:1px solid var(--line)">
+      <div class="mono" style="font-size:12px;letter-spacing:.12em">MADE BY <span style="color:var(--accent)">LEVI SQUAD</span></div>
+      <div class="dim mono" style="font-size:11px">NASA SPACE APPS CHALLENGE 2026 · THE NEXT FRONTIER · CHALLENGE #05</div>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
